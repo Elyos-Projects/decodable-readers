@@ -1,6 +1,6 @@
 # PLAN — decodable-readers
 
-> Status: Draft · Version: 0.1.0 · Last updated: 2026-06-28 · Owner: J. Carter (acting maintainer) · Lane: donated
+> Status: Draft · Version: 0.2.0 · Last updated: 2026-06-29 · Owner: J. Carter (acting maintainer) · Lane: donated
 
 ## Executive summary
 
@@ -137,6 +137,7 @@ tracked from M0/M1 so progress is visible *before* a partner exists. We explicit
 |---|---|---|---|
 | Books passing the **decodability gate** (100% coverage vs claimed level) | n/a | **100%** of published books (hard gate; **automated from M1**, manual+checker in M0) | Decodability checker report per book |
 | Books passing **safeguarding + representation** review | n/a | **100%** (hard gate) | Review sign-off in PR |
+| Books passing the **story-quality rubric** (engagement / arc / character / age-fit) | n/a | **100%** (hard gate, human-judged, distinct from decodability) | Story-quality sign-off in `review.yaml` |
 | Non-English books passing **native-speaker linguistic** review | n/a | **100%** (hard gate) | Reviewer sign-off in PR |
 | **License/provenance completeness** of published artifacts (text + illustrations) | n/a | **100%** (hard gate) | License-check task / CI |
 | Verified books published end-to-end (except adoption) | 0 | ≥ 1 by end of M0; ≥ 6 (a coherent set) by end of M1 | Repo + checker reports |
@@ -156,6 +157,18 @@ cumulative tricky-word list at step *k*. We track two numbers:
   (exact caps set per-level in the content policy). Density above the cap fails review even though
   coverage is 100%, because an over-loaded "decodable" is functionally a sight-word text.
 
+**Honest framing vs. the industry "~80% decodable" convention (no overclaiming).** Many published
+decodables and the research convention report **~80% decodability** with pre-taught tricky/heart
+words filling the remainder (e.g. Geodes markets "at least 80% decodable"; CKLA claims "100%
+decodable" *only when used alongside its own sequence*). Our two-number model is **stricter and more
+precise, not looser**: we require **coverage = 100%** (zero off-sequence words) **and** separately
+**cap tricky-word density** — so the "100%" refers to *off-sequence = 0*, not to a claim that every
+word is sounded out with no tricky words. Because the tricky-word allowance does real pedagogical
+work, **external messaging must not imply our books are stricter than competitors in a way the cap
+contradicts**: we say "**100% on-sequence: every word is either decodable at the stated step or a
+pre-taught tricky word, with tricky words capped**," never a bare "100% decodable." (See Open
+questions on public messaging.)
+
 **Sample rule for any rate reported as a percentage.** Percentages are reported only once the
 denominator is **≥ 10 published books**; below that we report raw counts (e.g., "7/8 books passed")
 to avoid small-sample noise.
@@ -167,7 +180,17 @@ to avoid small-sample noise.
 pre-taught** at that step. A book names exactly one sequence + step and is decodable *cumulatively*
 (everything up to and including that step). We **publish the sequence as data** and support **more
 than one** (English alone has several widely-used orders); we do not invent a novel sequence unless a
-partner needs one.
+partner needs one. There is **no single "correct" phonics scope-and-sequence** (the field agrees only
+that instruction must be *systematic, sequential, cumulative*), which is exactly why we support
+multiple orders as data rather than declaring one canonical.
+
+**M0 English sequence shortlist (named now — the lexicon, first set, and exports all depend on it).**
+Strong open candidates with transparent, openly-documented orders: **UFLI Foundations** (University of
+Florida — freely published scope & sequence + free decodable passages) and a **Letters-and-Sounds-
+derived** order (widely documented, non-proprietary). **License reality must be verified before we
+derive from any of them** — UFLI is "free to use" but lacks a clear CC reuse/derivatives grant, so the
+Letters-and-Sounds-derived order is the fallback. We **avoid aligning to copyrighted commercial orders
+as the primary sequence** (Fundations/Wilson, Read Write Inc.).
 
 **Definition — "low-resource language" (for prioritization).** A target language qualifies if
 **openly-licensed decodable readers aligned to a published scope-and-sequence are scarce or absent**
@@ -203,8 +226,64 @@ lexicon/sequence work.
 - A website, app, account system, or hosting platform.
 - Books in a language with **no qualified reviewer** available (we do not ship unreviewed reading
   material for children).
+- **Non-alphabetic/non-phonemic orthographies for v1** — abugidas (Hindi/Amharic), abjads (Arabic),
+  syllabaries, and tonal orthographies don't fit a flat GPC list cleanly; v1 is **alphabetic/phonemic
+  only**, with the schema designed to accommodate akshara/syllable units later (see Key decisions; an
+  Open question targets which shallow-orthography language is the M2 first non-English target). *Note:*
+  in shallow orthographies "decodability" is a weaker constraint (almost everything is decodable
+  early), so the value-add there shifts toward **sequencing + cultural authenticity** — scope non-
+  English work to where it actually helps.
 - Adapting third-party stories whose **license or public-domain status is unverified or
   incompatible** (see Data, licensing & compliance).
+
+## Competitive landscape & differentiation
+
+The space is **crowded with *free* decodables but sparse on the specific intersection this project
+targets**: *openly-licensed (CC-BY/CC0) · scope-and-sequence-mapped · machine-verified · genuinely
+multilingual · illustrated* decodable sets. Existing efforts fall into three buckets — high-craft but
+English-only and not openly reusable; open but not decodable/not verified; or free-but-license-murky
+and unillustrated. **No one ships all five properties together.** That intersection is the gap.
+
+**Closest analogues and where they stop short**
+- **Global Digital Library (GDL — Norad/UNESCO/NDLA).** Genuinely **open** (primary licenses CC-BY /
+  CC-BY-SA, commercial reuse allowed), multilingual (100+ languages), print + offline, and explicitly
+  hosts "leveled and decodable, local-language" books. But it **aggregates existing content** — it
+  does not author scope-and-sequence-mapped decodable *sets* and has **no decodability linter or
+  guarantee**; "decodable" is a label, not a verified property. → **Natural distribution channel +
+  partner, not a competitor.**
+- **Bloom Library (SIL Global).** The **closest existing analogue to the multilingual ambition**:
+  free OSS authoring tool + library, 10k+ books across 500–1000+ languages, with decodable+leveled
+  *templates* and a shared CC art pool. But decodability is **author-asserted inside the tool, not
+  externally verified**; there is no published machine checker or canonical sequence-as-data, and
+  quality/consistency vary. → **Partner + art source, and the analogue we beat on verification.**
+- **UFLI Foundations (Univ. of Florida).** Free, research-based, with a **published, widely-adopted,
+  transparent English scope-and-sequence** and free decodable passages — the **strongest *sequence*
+  source for English M0**. But it is passages (not illustrated open sets), English-only, and its
+  license is "free to use" with **no clear CC reuse/derivatives grant — this must be verified before
+  we derive a sequence from it** (a Letters-and-Sounds-derived, non-proprietary order is the fallback).
+- **Higher-craft English decodables** — Flyleaf, Reading Universe (GBH), Geodes (Great Minds/Wilson),
+  CKLA/Amplify — prove decodable-and-engaging is achievable, but are **English-only and not openly
+  reusable** (CKLA's open materials are CC-BY-**NC**-SA; Geodes/Flyleaf are commercial or
+  access-gated; several are tied to proprietary sequences).
+- **Open multilingual storybook platforms** — African Storybook (Saide), StoryWeaver (Pratham) — have
+  the **open licenses and the languages** but their books are **leveled/predictable, not decodable**
+  and carry no phonics sequence or decodability control. → **Complementary partners + art/source
+  feeds, not competitors.**
+- *Reference check:* the prior "Open Equal Access" reference **could not be verified** as a distinct
+  decodables project; it has been **replaced** by the verified open sources above (GDL, Bloom, the
+  free-PDF ecosystem). Do not cite it.
+
+**Our differentiator (the moat).** A **published, deterministic decodability linter + scope-and-
+sequence-as-data + segmented lexicon** that turns "decodable" from an *editorial claim* into a
+**verifiable, open guarantee** — and that the whole open ecosystem (GDL, Bloom authors, the free-PDF
+world) can reuse to *certify their own content*. Reinforced by: (1) an open license that actually
+**permits reuse** (CC-BY/CC0, vs. NC/access-gated rivals) with airtight provenance; (2) **multilingual
+done the right way** — native sequence + native author + native reviewer + verification, which no
+aggregator matches; (3) **distribution via incumbents, not against them** — publish *into* GDL/Bloom/
+StoryWeaver/African Storybook as the verified, scope-mapped content+tooling layer they lack; and
+(4) being the **purpose-built decodable practice tier for `literacy-from-zero`**, a use-case no
+general decodable publisher serves. (Adjacent reuse of the linter is covered in *Adjacent
+opportunities*.)
 
 ## Solution approach & architecture
 
@@ -227,8 +306,10 @@ gates "done"). Per CLAUDE.md, the checker is **project tooling living in this re
    or original** illustrations; record image provenance + license.
 6. **Review** — (a) **pedagogy/decodability** reviewer confirms level fit and the checker report;
    (b) **safeguarding + representation** reviewer confirms child-appropriateness and inclusive,
-   non-stereotyped content; (c) for **non-English**, a **native-speaker linguistics/literacy**
-   reviewer confirms the sequence, segmentation, and naturalness. Sign-offs recorded in `review.yaml`.
+   non-stereotyped content; (c) **story-quality** reviewer scores engagement/arc/character/age-fit
+   against the rubric (gate-blocking, distinct from decodability); (d) for **non-English**, a
+   **native-speaker linguistics/literacy** reviewer confirms the sequence, segmentation, and
+   naturalness. Sign-offs recorded in `review.yaml`.
 7. **License & provenance check** — text license, illustration license(s), any adapted-source
    provenance, attribution strings all present and compatible.
 8. **Export** — render accessible HTML/EPUB/PDF (+ dyslexia font, large-print variants).
@@ -237,30 +318,60 @@ gates "done"). Per CLAUDE.md, the checker is **project tooling living in this re
 **Artifacts / data model**
 - `sequences/<lang>/<id>.yaml` — `{ id, language, sourceName, sourceUrl, licenseName, licenseUrl,
   steps: [ { step, gpcs: [...], trickyWords: [...] } ], notes, verifiedBy, verifiedDate }`.
-- `lexicon/<lang>.yaml` — entries `{ word, segmentation: [grapheme→phoneme pairs], syllables,
-  notes }`; the **single source of truth** the checker uses to judge decodability.
+- `lexicon/<lang>.yaml` — entries `{ word, sense?, pos?, segmentation: [ { grapheme, phoneme } GPC
+  tuples ], syllables, notes }`; the **single source of truth** the checker uses to judge
+  decodability. **Decodability is context-dependent**, so the lexicon keys each correspondence as an
+  explicit **(grapheme, phoneme) tuple** and **allows multiple entries per spelling** for homographs/
+  heteronyms and context-sensitive GPCs — e.g. `c`=/k/ (*cat*) vs `c`=/s/ (*city*); `g`=/g/ vs /j/;
+  `-ed`=/t/,/d/,/ɪd/; `a` in *was* vs *cat*; *read* (present) vs *read* (past). A correspondence is
+  "introduced" only if **that specific (grapheme, phoneme) pair** is at/before step *k* — not merely
+  the letter. (`lexiconSchema` must encode this **before M0 ships** — see Key decisions and TASKS.)
 - `books/<lang>/<book-id>/`:
   - `book.yaml` — `{ id, title, language, sequenceId, step, decodabilityTargetCoverage: 100,
-    trickyDensityCap, ageBand, themes, contentRating, authors, illustrators }`.
+    trickyDensityCap, ageBand, themes, contentRating, authors, illustrators,
+    difficulty: { runningWordCount, sentenceLengthBand, newGpcDensity } }`. The **difficulty** block
+    (running-word count, sentence-length band, new-GPC density) keeps a "set" coherent in *difficulty*,
+    not just in GPC coverage — two books at the same step can differ widely in load, and partners map
+    these to their own levels.
   - `text.md` — the story (UTF-8 Markdown).
   - `decodability.json` — checker output `{ coverage, trickyDensity, offSequenceWords: [...],
     newTrickyWords: [...], pass: bool }`.
-  - `review.yaml` — `{ pedagogySignoff, safeguardingSignoff, linguisticSignoff (if non-EN),
-    coiDeclarations, agentFlags, status }`.
+  - `review.yaml` — `{ pedagogySignoff, safeguardingSignoff, storyQualitySignoff,
+    linguisticSignoff (if non-EN), coiDeclarations, agentFlags, status }`.
   - `provenance.yaml` — `{ originalOrAdapted, adaptedSource?, sourceLicense?, retrievalDate?,
     sequenceVersion, lexiconVersion, authors, illustrators }`.
   - `illustrations/` — image files + `illustrations/provenance.yaml` (per-image license/source).
   - `attribution.txt` — required attributions for any adapted text and for illustrations.
-- `templates/illustration-brief.md`, `templates/review-checklist.md`.
-- `policy/content-and-representation.md`, `policy/content-rating.md`.
+- `templates/illustration-brief.md`, `templates/review-checklist.md`,
+  `templates/story-quality-rubric.md`.
+- `policy/content-and-representation.md`, `policy/content-rating.md`, `policy/tokenization.md`
+  (the load-bearing tokenization spec — see the checker, below).
 
 **The decodability checker (the one software component).** Input: `text.md` + `sequenceId` + `step`
 + `lexicon/<lang>.yaml`. It tokenizes the text, looks up each word's segmentation in the lexicon,
-and decides for each word: **decodable** (all graphemes' GPCs introduced ≤ step), **tricky-listed**
-(on cumulative tricky list ≤ step), or **off-sequence** (fail). Words **not in the lexicon** are
-reported as `needs-segmentation` and **block** until added+reviewed — the checker never guesses a
-segmentation, which is what keeps the gate trustworthy. Output `decodability.json` + a non-zero exit
-on any off-sequence/needs-segmentation word or density-cap breach, so **CI fails closed**.
+and decides for each word: **decodable** (every **(grapheme, phoneme)** correspondence in the word's
+chosen segmentation was introduced ≤ step), **tricky-listed** (on cumulative tricky list ≤ step), or
+**off-sequence** (fail). Words **not in the lexicon** are reported as `needs-segmentation` and
+**block** until added+reviewed — the checker never guesses a segmentation, which is what keeps the
+gate trustworthy. Output `decodability.json` + a non-zero exit on any off-sequence/needs-segmentation
+word or density-cap breach, so **CI fails closed**.
+
+*Context-dependent correspondences (false-pass hole — closed).* Because a grapheme's decodability
+depends on *which phoneme* it maps to at this step (`c`=/k/ vs /s/, `-ed`=/t/,/d/,/ɪd/, etc.) and on
+word sense (homographs/heteronyms), the checker judges against **(grapheme, phoneme) tuples**, not
+bare letters, and a spelling with multiple lexicon entries (per `lexiconSchema`) is **disambiguated
+by an explicit per-occurrence sense tag**; if a running token is ambiguous and untagged, the checker
+**blocks it as `needs-segmentation`/`needs-disambiguation`** rather than silently picking a sense —
+it never guesses. This closes the silent false-pass the risk table flags.
+
+*Tokenization spec (load-bearing — must be pinned before the first book).* "100% coverage" is
+undefined until tokenization is specified, so `policy/tokenization.md` (enforced by the checker)
+fixes the handling of: **capitalization** (sentence-initial caps normalized for lookup),
+**contractions** (e.g. *can't* — is the `n't` taught? scored per its GPCs/tricky listing),
+**hyphenates**, **proper nouns / character names** (a classic decodable cheat — policy states whether
+names must be decodable, pre-taught as tricky, or explicitly exempt-and-counted), **inflections**
+(`-s`, `-ed`, `-ing`), **numerals**, and **punctuation**. The checker implements exactly this spec;
+changing tokenization is a versioned change that re-validates dependent books.
 
 **Why a curated lexicon (an honest engineering decision).** Robust automatic grapheme→phoneme
 *alignment* is unreliable, especially for deep orthographies like English. Early decodables, however,
@@ -269,6 +380,34 @@ hand-segmented, human-reviewed lexicon is **tractable and far more trustworthy**
 lexicon grows only as books need it. (Open pronunciation resources — e.g. public-domain CMUdict for
 English — may *seed* candidate segmentations, but every entry used in a published book is
 human-reviewed; see licensing.)
+
+**LLM/Claude leverage in authoring (donated lane — candidate generation, never final authority).**
+The donated lane means any Claude use is the **human's own interactive agent** during authoring (no
+funded/API execution in v0.1; default model **`claude-opus-4-8`**, with `claude-fable-5` for the
+highest-stakes multilingual/long-horizon work). The model adds the most leverage at exactly the
+points where a deterministic check, not the model, has the final say:
+- **Multi-candidate constrained story generation (highest value).** Given a step's allowed GPC set +
+  tricky-word list, the agent generates **multiple** candidate short stories (return story + word
+  list + the model's own flagged "reach" words as one schema-validated structured object), and **the
+  linter judges all candidates** — "generate 10, lint all, a human picks the best." This turns the
+  brutal constraint-satisfaction-plus-creativity problem into a search the deterministic gate scores.
+- **Illustration *briefs*, not images.** Draft per-page illustration briefs (scene, characters, mood,
+  cultural cues, accessibility notes) for human artists / open-art search — **briefs only**; the
+  AI-generated-image policy stays off-by-default (see Licensing).
+- **Lexicon seeding + within-level leveling.** Propose **CMUdict-seeded** candidate (grapheme,phoneme)
+  segmentations for new words (English), and propose sentence-length bands / running-word counts /
+  the step a draft actually fits — all **human-verified**, never auto-accepted.
+- **Reviewer-support tooling.** Summarize a draft's flagged words and surface possible cultural/age
+  concerns *for human attention*.
+
+**Hard guardrails (the project's integrity — the LLM never decides these):** decodability is decided
+**only** by the deterministic lexicon-backed linter (an LLM "thinks this is decodable" is exactly the
+false-pass hole); lexicon segmentations are **human-reviewed, never auto-accepted** (checker blocks on
+`needs-segmentation`); **pedagogy + cultural-appropriateness** are expert/native-reviewer gated (model
+fluency is not a substitute and must not gate a non-English book); **story quality is human-judged**
+(the model does not score its own output for the gate); **no unreviewed child-facing content ever
+ships**; and per CLAUDE.md **no secrets/keys** in logs or receipts (applies to any funded-lane
+metering if ever introduced — see Open questions).
 
 **Content schemas & CI validation.** The Task JSON schema lives in `packages/schema/src/schemas.ts`
 (AJV / JSON Schema **draft-07**). This project's content artifacts get their **own JSON Schemas in
@@ -280,16 +419,27 @@ cannot merge with a failing level claim or missing attribution.
 
 **Formats & accessibility.** UTF-8 throughout; Markdown canonical for text; YAML for metadata; JSON
 for machine reports. Exports: semantic HTML, EPUB 3 (reflowable, screen-reader friendly), print PDF,
-plus a **dyslexia-friendly font** option and **large-print / low-ink** variants. Structured text is
-kept clean so `read-aloud-audio` can align narration later.
+plus a **dyslexia-friendly font** option and **large-print / low-ink** variants. The font option uses
+a **specific open-licensed face (default OpenDyslexic, under its open license)** and is framed as a
+**reader *option*, not an evidence-based intervention** (dyslexia-font efficacy is contested in
+research); coordinate with the sibling `open-accessible-fonts` project. Structured text is kept clean
+so `read-aloud-audio` can align narration later.
 
 **Key decisions**
 - **Decodability-as-data, enforced by a fail-closed gate** — the project's core discipline.
+- **Correspondences keyed as (grapheme, phoneme) tuples, with a pinned tokenization spec** — closes
+  the context-dependent false-pass hole (`c`=/k/ vs /s/, contractions, proper nouns) before M0 ships.
 - **Curated segmented lexicon over auto-G2P** — trust over coverage.
+- **Story quality is a separate, gate-blocking, human-judged rubric** — "checker-passed" is necessary
+  but not sufficient; a correct-but-lifeless book does not ship.
+- **v1 orthography scope is alphabetic/phonemic, declared explicitly**, with the schema designed to
+  later accommodate abugidas/abjads/syllabaries/tone so non-English M2 doesn't hit a data-model wall.
 - **Multiple published sequences supported; none declared "correct"** — avoids method wars and
   maximizes reuse across programs.
 - **Native authoring per language, never translation** — preserves decodability.
 - **Originals by default; adaptation only from verified PD/open sources** — minimizes license risk.
+- **The linter is the moat: published as a standalone, versioned tool (+ MCP server)** so the open
+  ecosystem can certify its own content (see Adjacent opportunities).
 - **Accessibility and `literacy-from-zero` integration are first-class**, not afterthoughts.
 
 ## Data, licensing & compliance
@@ -355,12 +505,19 @@ correctness depends on a reviewer who reads the language.
    age-appropriate, non-frightening, free of unsafe modeling, and **inclusive/non-stereotyped**
    (gender, race/ethnicity, disability, family structure, religion, region), with a content rating
    recorded. *Fail → not shipped.*
-3. **Linguistic gate (human, non-English only).** A **native-speaker literacy/linguistics reviewer**
+3. **Story-quality gate (human, gate-blocking, distinct from decodability).** A reviewer scores the
+   book against `templates/story-quality-rubric.md` — **engagement, narrative arc, character, and
+   age-fit** — because the tricky-density cap only prevents sight-word overload, not lifelessness. A
+   "checker-passed" book that is correct but dull (the perennial decodable failure mode, e.g. "the fat
+   cat sat on a mat") **fails this gate**. The reviewer is human; the LLM does **not** score its own
+   output for this gate. *Fail → not shipped.* (May be combined with, but is recorded separately from,
+   the pedagogy sign-off.)
+4. **Linguistic gate (human, non-English only).** A **native-speaker literacy/linguistics reviewer**
    confirms the scope-and-sequence, the lexicon segmentations, and that the language is natural and
    correct. *No qualified reviewer → the language is not shipped.*
-4. **License & provenance gate (automated + human).** Text + illustration + adapted-source licenses,
+5. **License & provenance gate (automated + human).** Text + illustration + adapted-source licenses,
    attributions, and provenance are present and compatible. *Fail → not shipped.*
-5. **CI green** for the checker, schema structural checks, and any tooling code; **maintainer
+6. **CI green** for the checker, schema structural checks, and any tooling code; **maintainer
    approval** of the PR.
 
 **Reviewer independence & two-reviewer rule.** Reviewers must be **independent of the drafting
@@ -383,8 +540,9 @@ recorded while any flag is unresolved** (each must be `resolved` or `accepted-as
 
 **Definition of Shipped (project-specific).** A book/set is *shipped* only when: acceptance criteria
 met **and** the **decodability gate** passes (100% coverage, density within cap) **and**
-**safeguarding/representation** sign-off recorded **and** (non-English) **linguistic** sign-off
-recorded **and** **license/provenance** verified **and** CI green **and** the set is **delivered to a
+**safeguarding/representation** sign-off recorded **and** **story-quality** sign-off recorded **and**
+(non-English) **linguistic** sign-off recorded **and** **license/provenance** verified **and** CI
+green **and** the set is **delivered to a
 program/partner and actually used with real learners** (or adopted as the decodable practice tier in
 `literacy-from-zero`). **Merged-but-unused is not shipped.**
 
@@ -404,6 +562,13 @@ English decodable book** authored, **checker-passed (100% coverage, density with
 honestly `false` (no partner). *License/decodability gate note:* M0 runs the checker + a **minimal
 automated structural check** (schemas + presence of required metadata/attribution) so the "100%"
 gates are honest from day one; **full CI enforcement is automated in M1**.
+*Correctness prerequisites added in v0.2 (must land in M0, before the first book):* `lexiconSchema`
+encodes **(grapheme, phoneme) tuples with multiple entries per spelling**; a **tokenization spec**
+(`policy/tokenization.md`) is published and implemented by the checker; a **gate-blocking story-quality
+rubric** (`templates/story-quality-rubric.md`) is merged; the **M0 English sequence is chosen from the
+named shortlist with its reuse license verified** (UFLI / Letters-and-Sounds-derived); **v1 orthography
+scope (alphabetic/phonemic) is declared**; the accessibility font option names a **specific open face
+(OpenDyslexic)**.
 
 **M1 — A coherent set + repeatability (no partner required).**
 Goal: prove this scales to a *teachable set*, not a one-off.
@@ -412,6 +577,12 @@ book checker-passed and reviewed; **decodability + schema + license checks enfor
 (fail-closed); **accessible export pipeline** (HTML/EPUB/PDF + dyslexia font + large-print) producing
 all set books; **reviewer qualification criteria** published + **≥ 2 qualified reviewers** engaged
 (pedagogy + safeguarding); **authoring runbook** merged. Dependency: reviewer sourcing.
+*Added in v0.2:* **difficulty metadata** (`book.yaml` running-word count / sentence-length band /
+new-GPC density) makes the set coherent in *difficulty*, not just GPC coverage; an **illustration
+supply strategy** (shared CC art pools — African Storybook, Bloom shell-book art, Openverse/Wikimedia
+— + a contributor-artist pipeline + a consistent-style guide) is in place **before** book count
+scales (the likely real M1 bottleneck); and **book production is capped until ≥ 1 partner conversation
+is serious** (the M1 pause/decision point), so we don't author sets no program has committed to use.
 
 **M2 — Multilingual foundations + first partner (needs partner / reviewer).**
 Goal: prove the multilingual model **the right way** and deliver an adopted set.
@@ -429,6 +600,10 @@ Exit criteria: ≥ 2 languages with multi-level sets in use; **publication to op
 (e.g. StoryWeaver / Global Digital Library) with correct attribution; **reviewer rotation**
 established; **outcome tracking** (usage, partner feedback, any defects) operating; named
 **sustainability owner**; documented **maintenance cadence** for sequences/lexicons.
+*Added in v0.2 (the reuse flywheel):* the **decodability checker is published as a standalone,
+documented, versioned tool + an MCP server** so GDL/Bloom/free-PDF-ecosystem authors can certify their
+own content against our sequences-as-data — turning our gate into the field's standard and a
+distribution flywheel (see Adjacent opportunities).
 
 ## Work breakdown
 
@@ -446,6 +621,9 @@ partner / per-language reviewer and are marked `verifiedNeed: false` until then.
 - **Pedagogy / decodability reviewers: TO BE SECURED** — structured-literacy-literate reviewers
   (teacher, reading specialist, or SLP) who confirm level fit + lexicon segmentation. Rotation
   defined in M1.
+- **Story-quality reviewer (gate-blocking): TO BE SECURED** — scores engagement/arc/character/age-fit
+  against the rubric, independent of the drafter; may be the same person as the pedagogy reviewer but
+  records a **separate** sign-off. A book that is decodability-correct but lifeless does not ship.
 - **Safeguarding / inclusive-representation reviewers: TO BE SECURED** — confirm child-appropriate,
   inclusive, non-stereotyped content + content rating; **independent** of the decodability reviewer.
 - **Native-speaker linguistic reviewers (per non-English language): TO BE SECURED** — **mandatory**
@@ -483,6 +661,8 @@ partner / per-language reviewer and are marked `verifiedNeed: false` until then.
 |---|---|---|---|---|
 | A book labeled decodable isn't (off-sequence words) → teaches guessing, harms learners | Medium | High | Fail-closed decodability checker (100% coverage gate); curated reviewed lexicon (no guessed segmentations); pedagogy reviewer confirms; CI fails on any off-sequence word | Maintainer / Pedagogy reviewers |
 | Wrong/auto segmentation makes the checker lie (false "pass") | Medium | High | Checker never guesses — unknown words **block** as `needs-segmentation`; every used segmentation human-reviewed; non-EN linguistic reviewer mandatory | Pedagogy / Linguistic reviewers |
+| Context-dependent GPC / tokenization gap → silent false-pass (`c`=/k/ vs /s/, contractions, proper nouns) | Medium | High | Lexicon keys **(grapheme, phoneme) tuples** with multiple entries per spelling; published **tokenization spec** enforced by the checker; ambiguous untagged tokens **block** | Maintainer / Pedagogy reviewers |
+| "Checker-passed" but lifeless story (the perennial decodable failure mode) | Medium | Medium | **Gate-blocking, human-judged story-quality rubric** (engagement/arc/character/age-fit), separate from decodability; story-quality sign-off required to ship | Pedagogy / Story-quality reviewers |
 | Naive translation of English books breaks decodability in other languages | Medium | High | Hard non-goal; each language authored natively against its own sequence; per-language reviewer gate | Maintainer / Linguistic reviewers |
 | Inappropriate, frightening, or stereotyped content reaches children | Low | High | Mandatory independent safeguarding/representation gate + content-rating policy + reviewer checklist; conservative-reading-wins rule | Safeguarding reviewers |
 | Illustration/source license violation (esp. images, adapted folktales, AI-image ambiguity) | Medium | High | Originals by default; per-image + per-source provenance/license recorded + checked; AI-images off by default & labeled; "if unclear, don't use" | License reviewer / Maintainer |
@@ -523,6 +703,36 @@ partner / per-language reviewer and are marked `verifiedNeed: false` until then.
   found, provenance makes impact assessment possible; affected books are corrected, re-checked, or
   withdrawn and downstream repos notified.
 
+## Adjacent opportunities
+
+These are **forward-looking spin-offs**, not v0.2 commitments; they are recorded so the architecture
+stays reuse-ready (several are seeded in the Roadmap / Backlog).
+
+- **A shared `decodability-engine` (highest-leverage).** Extract the checker + sequence schema +
+  lexicon format into a **standalone open library/CLI** used across the literacy portfolio — by
+  `literacy-from-zero` (verify its own practice texts), by `open-childrens-books` (to *tag* which of
+  its books happen to be decodable at which level), and by external platforms (GDL/Bloom/free-PDF
+  authors) to certify content. This is the single most reusable artifact the project produces.
+- **An MCP server exposing the engine.** Tools such as `check_decodability(text, sequenceId, step)`,
+  `list_allowed_gpcs(sequenceId, step)`, `segment_word(word) → candidate (human-review-required)`,
+  and `suggest_in_vocab_synonyms(word, step)` let *any* agent author against the constraint
+  interactively and verify deterministically — "decodability as a service" as a public good. The
+  linter stays **deterministic server-side**; the model never gets the pass/fail verdict.
+- **`literacy-from-zero` integration (the flagship tie).** Books become its "now read a whole story"
+  tier and the engine verifies that tier; formalize the data contract (which sequence, which steps)
+  early — this is the project's primary outcome path.
+- **`read-aloud-audio` alignment.** Decodable texts (small, controlled vocabulary) are an ideal first
+  corpus for word-level audio alignment; the plan already keeps clean structured text for this.
+- **`open-pronunciation-audio`.** Per-GPC and per-tricky-word pronunciation audio keyed to the
+  sequence supports both the lexicon (audio reference for segmentations) and learners, reusing the
+  sequence-as-data spine.
+- **`world-folktales-open` / `public-domain-translations` (source feed).** Verified-PD folktales
+  become *adaptation* candidates for higher-level decodables (where vocab constraints loosen), under
+  the licensing discipline already specified.
+- **A "certify your decodable" badge (ecosystem play).** Let the open community run their books
+  through the engine and earn a verifiable "decodable at sequence X, step k" provenance stamp —
+  driving adoption of our sequences-as-data as the lingua franca.
+
 ## Open questions
 
 1. **Partner / first requestor.** Which program or repo is the first to *use* a set? **Outreach plan
@@ -549,7 +759,29 @@ partner / per-language reviewer and are marked `verifiedNeed: false` until then.
 6. **Effectiveness evidence.** Can a university partner run a small observational study on decoding
    accuracy/confidence? (Aspirational; not an Elyos-made claim without it.)
 7. **Funded lane?** Project is donated; is there ever a case for metered authoring under escrow for a
-   surge of partner-requested levels? (Out of scope for v0.1; would require `fundedBudgetUsd`.)
+   surge of partner-requested levels? (Out of scope for v0.1; would require `fundedBudgetUsd` and the
+   same gates + a hard per-task budget cap.)
+8. **Context-dependent GPC disambiguation in running text.** The lexicon now keys (grapheme, phoneme)
+   tuples with per-sense entries; how does the checker disambiguate a homograph/heteronym at a given
+   occurrence — POS tagging, human per-occurrence sense tags, or block-and-review? (Default:
+   human/explicit sense tag; ambiguous-and-untagged tokens **block**, never auto-pick. *Blocks
+   correctness of the headline gate.*)
+9. **Tokenization & proper-noun policy.** Are character names required to be decodable, pre-taught as
+   tricky, or explicitly exempt-and-counted? How exactly are contractions, inflections, and numerals
+   scored? (Must be pinned in `policy/tokenization.md` **before the first book**.)
+10. **Sequence licensing reality.** Is **UFLI Foundations'** order actually reusable/derivable under
+    an open license, or only "free to use"? Verify (don't assume) before deriving; same for any
+    candidate order. Fallback: a Letters-and-Sounds-derived non-proprietary order.
+11. **"100% on-sequence" vs the industry "~80% decodable" convention — public messaging.** How do we
+    state our stricter coverage gate without overclaiming relative to Geodes/CKLA, given that the
+    tricky-word allowance does real pedagogical work? (See Success metrics framing note.)
+12. **Story-quality gate ownership.** Who scores the story-quality rubric, and is it truly
+    gate-blocking and independent of the drafter? (Plan: yes, gate-blocking; reviewer assignment TBD.)
+13. **Non-alphabetic orthographies & the M2 target.** v1 is alphabetic/phonemic; which shallow-
+    orthography language (need × reviewer availability) is the first non-English target, and when is
+    the schema extended for abugidas/abjads/syllabaries/tone?
+14. **Engine-as-product.** Is the checker/MCP server resourced as a **first-class standalone
+    deliverable** (`decodability-engine`, the biggest reuse lever) or kept as in-repo tooling?
 
 ## References
 
@@ -565,6 +797,14 @@ partner / per-language reviewer and are marked `verifiedNeed: false` until then.
 - Open content repositories: StoryWeaver (Pratham Books), Global Digital Library (Norad), African
   Storybook (Saide), Worldreader / Library For All — candidate partners + distribution channels.
 - CMUdict (U.S. public-domain pronunciation dictionary) — optional English lexicon seeding source.
+- **Competitive / landscape sources** (see `COMPETITIVE-ANALYSIS.md` for full citations): Global
+  Digital Library (open, CC-BY/CC-BY-SA, but no decodability verification); Bloom Library / SIL Global
+  (closest multilingual analogue; author-asserted decodability); **UFLI Foundations** (University of
+  Florida — strongest open English scope-and-sequence source; **reuse license to be verified before
+  deriving**); Reading Universe (GBH), Geodes (Great Minds/Wilson), CKLA/Amplify (CC-BY-**NC**-SA),
+  Flyleaf — higher-craft English decodables, not openly reusable. *The earlier "Open Equal Access"
+  reference could not be verified as a distinct decodables project and has been removed; do not cite
+  it.*
 
 ---
 
@@ -655,3 +895,60 @@ the M0 license/decodability gate is honest (checker + structural check now, full
 **No blocking issues remain.** Items needing a **human decision** before execution: choose the M0
 English scope-and-sequence; ratify the AI-illustration policy; secure the first partner / confirm
 `literacy-from-zero` integration; source pedagogy/safeguarding/linguistic reviewers.
+
+---
+
+## Changelog — v0.2 (analysis merged)
+
+Merged the findings of `COMPETITIVE-ANALYSIS.md` (analyst review of v0.1, web research 2026-06-29)
+into this plan. Changes are **surgical and additive**; structure, guardrails, vision, and valid v0.1
+content are preserved. No facts were invented.
+
+**Correctness fixes applied (the two most material findings + supporting fixes):**
+- **Closed the context-dependent-GPC false-pass hole.** The lexicon now keys correspondences as
+  explicit **(grapheme, phoneme) tuples** and **allows multiple entries per spelling** for
+  homographs/heteronyms (`c`=/k/ vs /s/, `g`=/g/ vs /j/, `-ed`=/t/,/d/,/ɪd/, *read* present/past).
+  A correspondence counts as introduced only if *that specific pair* is at/before the step. Updated
+  the data model, checker spec, Key decisions, and Risks. (`lexiconSchema` must encode this before M0.)
+- **Pinned a tokenization spec** (`policy/tokenization.md`, checker-enforced) for capitals,
+  contractions, hyphenates, **proper nouns / character names**, inflections, numerals, punctuation —
+  "100% coverage" is undefined without it. Ambiguous untagged tokens **block**, never auto-pick.
+- **Added a gate-blocking, human-judged story-quality rubric** (engagement/arc/character/age-fit),
+  explicitly distinct from decodability, with its own sign-off in `review.yaml`, a gate (#3), a metric
+  row, a Risk row, a reviewer role, a template, and inclusion in the Definition of Shipped.
+- **Reconciled "100% decodability" with the industry ~80% convention** in Success metrics — clarified
+  that our "100%" means *off-sequence = 0* with separately-capped tricky words (stricter, not looser),
+  and added an anti-overclaiming messaging rule (+ an open question).
+- **Replaced the unverifiable "Open Equal Access" reference** with verified open sources (GDL, Bloom,
+  the free-PDF ecosystem); flagged it as not-to-be-cited in References.
+
+**Strategy integrated:**
+- **New "## Competitive landscape & differentiation"** section: GDL (open+multilingual, no
+  verification), Bloom/SIL (closest analogue, author-asserted decodability), UFLI Foundations (best
+  English sequence source, license to verify), higher-craft English rivals (not openly reusable);
+  differentiator = a **published deterministic decodability linter + sequence-as-data + segmented
+  lexicon** turning "decodable" from claim into a verifiable open guarantee, distributing *via*
+  incumbents.
+- **Folded "Claude API leverage" into the architecture** (donated-lane authoring subsection):
+  multi-candidate constrained story generation judged by the linter; illustration **briefs, not
+  images**; **CMUdict-seeded** segmentation candidates + within-level leveling — all human-verified —
+  with hard guardrails that the **LLM never decides decodability, pedagogy, cultural-appropriateness,
+  or story quality** and never ships unreviewed child-facing content (default `claude-opus-4-8`,
+  `claude-fable-5` for highest-stakes).
+- **Folded the optimizations into the Roadmap:** M0 now requires the GPC-tuple lexicon schema,
+  tokenization spec, story-quality rubric, named+license-verified sequence shortlist (UFLI /
+  Letters-and-Sounds-derived), declared alphabetic/phonemic v1 orthography scope, and a named open
+  dyslexia font (OpenDyslexic, framed as an option). M1 adds **difficulty metadata** to `book.yaml`,
+  an **illustration-supply strategy**, and a **book-production cap until a partner conversation is
+  serious**. M3 publishes the checker as a **standalone tool + MCP server**.
+- **New "## Adjacent opportunities"** section: a shared **`decodability-engine`** (reusable by
+  `literacy-from-zero`, `open-childrens-books`, external platforms), an **MCP server**, audio/
+  pronunciation/folktale spin-offs, and a "certify your decodable" badge.
+- **Merged Open questions** (added GPC disambiguation, tokenization/proper-noun policy, UFLI license
+  reality, 100%-vs-80% messaging, story-quality ownership, non-alphabetic orthographies + M2 target,
+  engine-as-product resourcing) and added the verified competitive sources to References.
+
+**Preserved:** all v0.1 H2 sections and order; open-license / structured-literacy-evidence /
+multilingual-orthography / cultural-appropriateness / accessibility guardrails (strengthened, never
+weakened); honesty posture (`verifiedNeed=false`, partner TO BE SECURED); Appendix A and the v0.1
+review sign-off. TASKS.md received matching surgical edits.

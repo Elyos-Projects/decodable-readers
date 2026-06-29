@@ -1,6 +1,6 @@
 # TASKS — decodable-readers
 
-> Status: Draft · Version: 0.1.0 · Last updated: 2026-06-28 · Owner: J. Carter (acting maintainer) · Lane: donated
+> Status: Draft · Version: 0.2.0 · Last updated: 2026-06-29 · Owner: J. Carter (acting maintainer) · Lane: donated
 
 The backlog for the `decodable-readers` good-deed project. Read alongside [PLAN.md](./PLAN.md).
 Milestones (M0–M3) match the roadmap there.
@@ -52,10 +52,11 @@ end-to-end except adoption.
 | decodable-readers-sequence-001 | Publish an English scope-and-sequence as data (open-documented order, license recorded) | data | small | low | dataset | — | Maintainer / Pedagogy reviewer |
 | decodable-readers-policy-001 | Content + inclusive-representation + content-rating policy | writing | small | low | document | — | Maintainer / Safeguarding reviewer |
 | decodable-readers-license-001 | License & provenance policy (text + per-image + adapted-source + AI-image stance) + per-book check procedure | research | small | low | document | — | License reviewer / Maintainer |
-| decodable-readers-schema-001 | Content JSON Schemas (sequence/lexicon/book/decodability/review/provenance) + structural CI check | code | medium | low | pr | sequence-001 | Maintainer |
-| decodable-readers-checker-001 | Decodability checker tool (coverage + density; blocks on off-sequence / needs-segmentation) | code | medium | low | pr | sequence-001, schema-001 | Maintainer / Pedagogy reviewer |
-| decodable-readers-lexicon-001 | Curated segmented English lexicon (seed for first levels) | data | small | low | dataset | sequence-001, schema-001 | Pedagogy reviewer |
-| decodable-readers-rubric-001 | Review rubric/checklist (decodability + safeguarding/representation + linguistic) | writing | small | low | document | policy-001 | Maintainer |
+| decodable-readers-schema-001 | Content JSON Schemas (sequence/lexicon/book/decodability/review/provenance) + structural CI check — `lexiconSchema` keys **(grapheme, phoneme) tuples** with multiple entries per spelling; `bookSchema` includes a **difficulty** block; `reviewSchema` includes **storyQualitySignoff** | code | medium | low | pr | sequence-001 | Maintainer |
+| decodable-readers-tokenization-001 | Tokenization spec (`policy/tokenization.md`): capitals, contractions, hyphenates, proper nouns/names, inflections, numerals, punctuation — enforced by the checker | writing | small | low | document | — | Maintainer / Pedagogy reviewer |
+| decodable-readers-checker-001 | Decodability checker tool (coverage + density; (grapheme,phoneme)-tuple aware; tokenization-spec enforced; blocks on off-sequence / needs-segmentation / ambiguous-untagged) | code | medium | low | pr | sequence-001, schema-001, tokenization-001 | Maintainer / Pedagogy reviewer |
+| decodable-readers-lexicon-001 | Curated segmented English lexicon (seed for first levels); entries key **(grapheme, phoneme) tuples** with multiple entries per spelling for homographs/context-dependent GPCs; CMUdict-seeded candidates **human-reviewed** | data | small | low | dataset | sequence-001, schema-001 | Pedagogy reviewer |
+| decodable-readers-rubric-001 | Review rubric/checklist (decodability + safeguarding/representation + **story-quality** + linguistic) incl. `templates/story-quality-rubric.md` | writing | small | low | document | policy-001 | Maintainer |
 | decodable-readers-illus-001 | Illustration brief template + image provenance policy + first open-licensed/original illustration | design-spec | small | low | design-spec | license-001 | Maintainer / Safeguarding reviewer |
 | decodable-readers-book-001 | Author + verify first English decodable book (level ~1–2), end-to-end except adoption | writing | medium | low | document | sequence-001, lexicon-001, checker-001, rubric-001, illus-001 | Pedagogy reviewer + Safeguarding reviewer (independent) |
 
@@ -66,17 +67,28 @@ end-to-end except adoption.
   `trickyWords` pre-taught, cumulatively interpretable.
 - Records `sourceName`, `sourceUrl`, `licenseName`, `licenseUrl`, `verifiedBy`, `verifiedDate`; the
   order is from an **openly-documented** sequence (no copying of a copyrighted commercial program).
+- The order is chosen from the **named M0 shortlist — UFLI Foundations or a Letters-and-Sounds-derived
+  order — and its reuse/derivatives license is verified before deriving** (UFLI is "free to use" but
+  lacks a clear CC grant; fall back to the Letters-and-Sounds-derived order if so); copyrighted
+  commercial orders (Fundations/Wilson, Read Write Inc.) are not used as the primary sequence.
 - Validates against `sequenceSchema`; passes the structural CI check.
 
 `checker-001` (decodability checker)
 - Given `text.md` + `sequenceId` + `step` + `lexicon/en.yaml`, classifies each running word as
   **decodable / tricky-listed / off-sequence / needs-segmentation** using only the lexicon's
   segmentations (the checker **never guesses** a segmentation).
+- Judges decodability against **(grapheme, phoneme) tuples**, not bare letters: a correspondence is
+  "introduced" only if *that specific pair* is at/before the step (closes the `c`=/k/ vs /s/
+  false-pass). For a spelling with multiple lexicon entries, an **ambiguous, untagged token blocks**
+  (`needs-segmentation`/`needs-disambiguation`) — never auto-picks a sense.
+- Implements the **tokenization spec** (`tokenization-001`) exactly: capitals, contractions,
+  hyphenates, proper nouns/names, inflections, numerals, punctuation.
 - Emits `decodability.json` with `coverage`, `trickyDensity`, `offSequenceWords[]`,
-  `newTrickyWords[]`, `pass`; **exits non-zero** on any off-sequence/needs-segmentation word or on a
-  tricky-density-cap breach (fail-closed).
+  `newTrickyWords[]`, `pass`; **exits non-zero** on any off-sequence/needs-segmentation/ambiguous word
+  or on a tricky-density-cap breach (fail-closed).
 - Has unit tests with fixtures (a passing book, a book with one off-sequence word, a book over the
-  density cap); CI runs them.
+  density cap, a **context-dependent GPC case** e.g. `c`=/s/ at a `c`=/k/-only step, an
+  **ambiguous-homograph** case); CI runs them.
 
 `book-001` (first decodable book)
 - One **original** English story authored to a named `sequenceId` + `step`; engaging and
@@ -88,8 +100,12 @@ end-to-end except adoption.
   `illustrations/` (+ `illustrations/provenance.yaml`), `attribution.txt`.
 - Agent `UNCERTAIN:` flags captured into `review.yaml` as `agentFlags`; **no sign-off while any flag
   is unresolved**.
-- **Pedagogy/decodability sign-off** and **independent safeguarding/representation sign-off**
-  recorded (different people; COI declared); content rating set per `policy-001`.
+- **Pedagogy/decodability sign-off**, **independent safeguarding/representation sign-off**, and a
+  **gate-blocking story-quality sign-off** (engagement/arc/character/age-fit, distinct from
+  decodability) recorded (decodability ≠ safeguarding by the same person; COI declared); content
+  rating set per `policy-001`.
+- `book.yaml` records the **difficulty** block (running-word count, sentence-length band, new-GPC
+  density).
 - License/provenance check (`license-001`) passes: text license = CC-BY-4.0 (or CC0); every
   illustration has a recorded license/source; attribution complete.
 
@@ -98,12 +114,15 @@ end-to-end except adoption.
   non-stereotyped representation** requirements, and a **content-rating** scheme recorded per book.
 - Sets per-level **tricky-word density caps** the checker enforces.
 
-**M0 Definition of Done:** English scope-and-sequence published as data (license recorded); content/
-license/provenance policies + review rubric merged; **decodability checker + content schemas + a
-minimal automated structural check** runnable and green in CI; seed English lexicon merged; **one
-original English decodable book authored, checker-passed (100% coverage, density within cap), with
-independent pedagogy + safeguarding sign-off and a passing license/provenance check**, including at
-least one open-licensed/original illustration with recorded provenance. Full fail-closed CI
+**M0 Definition of Done:** English scope-and-sequence published as data (from the named shortlist,
+**reuse license verified**); content/license/provenance policies + **tokenization spec** + review
+rubric (incl. **story-quality rubric**) merged; **decodability checker** ((grapheme,phoneme)-tuple
+aware, tokenization-enforced) **+ content schemas** (`lexiconSchema` tuples, `bookSchema` difficulty,
+`reviewSchema` story-quality) **+ a minimal automated structural check** runnable and green in CI;
+seed English lexicon (tuple-keyed) merged; **v1 alphabetic/phonemic orthography scope declared**;
+**one original English decodable book authored, checker-passed (100% coverage, density within cap),
+with independent pedagogy + safeguarding + story-quality sign-off and a passing license/provenance
+check**, including at least one open-licensed/original illustration with recorded provenance. Full fail-closed CI
 enforcement is **effective from M1**; M0 verifies the first book via checker + structural check +
 manual review. Partner adoption deferred to M2 (so M0 deliverables carry `verifiedNeed: false`).
 
@@ -117,8 +136,9 @@ Goal: prove this scales to a *teachable set*, with the gates enforced in CI and 
 |---|---|---|---|---|---|---|---|
 | decodable-readers-bookset-001 | Author a coherent set of ≥ 6 English books across the first N steps (cumulative) | writing | large | low | document | book-001 | Pedagogy + Safeguarding reviewers |
 | decodable-readers-ci-001 | Enforce decodability + schema + license checks in CI (fail-closed) | code | small | low | pr | checker-001, schema-001, license-001 | Maintainer |
-| decodable-readers-export-001 | Accessible export pipeline (HTML/EPUB/PDF + dyslexia font + large-print/low-ink) | code | medium | low | pr | book-001 | Maintainer |
-| decodable-readers-reviewers-001 | Reviewer qualification criteria + onboarding (pedagogy, safeguarding, linguistic) + engage ≥ 2 | research | medium | low | document | rubric-001 | Maintainer / Steward |
+| decodable-readers-export-001 | Accessible export pipeline (HTML/EPUB/PDF + **OpenDyslexic** font option + large-print/low-ink) | code | medium | low | pr | book-001 | Maintainer |
+| decodable-readers-illusupply-001 | Illustration supply strategy (shared CC art pools — African Storybook, Bloom shell-book art, Openverse/Wikimedia — + contributor-artist pipeline + consistent-style guide) **before** book count scales | research | small | low | document | illus-001 | Maintainer / Safeguarding reviewer |
+| decodable-readers-reviewers-001 | Reviewer qualification criteria + onboarding (pedagogy, safeguarding, **story-quality**, linguistic) + engage ≥ 2 | research | medium | low | document | rubric-001 | Maintainer / Steward |
 | decodable-readers-runbook-001 | Authoring pipeline runbook (pick level → draft → segment → check → review → export) | writing | small | low | document | book-001, ci-001 | Maintainer |
 
 **Acceptance criteria — key M1 tasks**
@@ -127,8 +147,10 @@ Goal: prove this scales to a *teachable set*, with the gates enforced in CI and 
 - ≥ 6 original English books covering the first **N** steps **cumulatively** (each book ≤ its step;
   later books may use earlier GPCs), forming a coherent reading progression.
 - Every book passes the **decodability gate** (100% coverage, density within cap) via CI, and carries
-  independent pedagogy + safeguarding sign-offs and complete license/provenance.
-- The set's level coverage is documented (which steps each book targets).
+  independent pedagogy + safeguarding + **story-quality** sign-offs and complete license/provenance.
+- The set's level coverage is documented (which steps each book targets), and the set is **coherent in
+  difficulty** (per-book `difficulty` metadata — running-word count / sentence-length band / new-GPC
+  density — forms a smooth progression), not just in GPC coverage.
 
 `ci-001` (fail-closed CI gate)
 - CI runs the decodability checker on every book, the schema structural checks on every artifact, and
@@ -137,7 +159,8 @@ Goal: prove this scales to a *teachable set*, with the gates enforced in CI and 
 
 `reviewers-001` (reviewer network)
 - Written, objective criteria for each reviewer role (pedagogy/decodability; safeguarding/
-  representation; native-speaker linguistic), including a **conflict-of-interest declaration** and the
+  representation; **story-quality**; native-speaker linguistic), including a **conflict-of-interest
+  declaration** and the
   **independence rule** (drafting human ≠ sole reviewer; decodability ≠ safeguarding sign-off by same
   person; non-English requires an independent linguistic reviewer) and the **disagreement-resolution**
   rule (reconcile → escalate to maintainer/third reviewer → conservative reading wins; recorded in
@@ -146,14 +169,18 @@ Goal: prove this scales to a *teachable set*, with the gates enforced in CI and 
 
 `export-001` (accessibility)
 - Produces clean **HTML, EPUB 3 (reflowable, screen-reader friendly), and print PDF** for every set
-  book, plus a **dyslexia-friendly font** option and a **large-print / low-ink** variant; output is
-  reproducible and runs in CI.
+  book, plus a **dyslexia-friendly font** option (default **OpenDyslexic** under its open license,
+  framed as an *option*, not an evidence-based intervention) and a **large-print / low-ink** variant;
+  output is reproducible and runs in CI.
 
-**M1 Definition of Done:** a coherent ≥ 6-book English set, every book checker-passed and reviewed;
+**M1 Definition of Done:** a coherent ≥ 6-book English set (coherent in **difficulty** per `book.yaml`
+metadata, not just GPC coverage), every book checker-passed and reviewed (incl. **story-quality**);
 **decodability + schema + license checks enforced fail-closed in CI**; accessible export pipeline
-producing all set books (incl. dyslexia font + large print); reviewer qualification criteria
-published (incl. independence + conflict resolution) and **≥ 2 reviewers engaged**; authoring runbook
-merged. **Steward named** (governance prerequisite for M2). Partner-dependent value still
+producing all set books (incl. **OpenDyslexic** font option + large print); **illustration supply
+strategy** in place before book count scales; reviewer qualification criteria published (incl.
+story-quality role + independence + conflict resolution) and **≥ 2 reviewers engaged**; authoring
+runbook merged; **book production capped until ≥ 1 partner conversation is serious** (pause/decision
+point). **Steward named** (governance prerequisite for M2). Partner-dependent value still
 `verifiedNeed: false`.
 
 ---
@@ -211,6 +238,7 @@ Goal: scale languages/levels with sustained quality and tracked outcomes.
 |---|---|---|---|---|---|---|---|
 | decodable-readers-scale-001 | Extend sets across more levels/languages in use | writing | large | medium | document | delivery-001 | Pedagogy + Linguistic + Safeguarding reviewers |
 | decodable-readers-distribute-001 | Publish sets to open repos (StoryWeaver / Global Digital Library) with correct attribution | maintenance | small | low | document | delivery-001 | Steward / License reviewer |
+| decodable-readers-engine-001 | Publish the checker as a standalone, documented, versioned **`decodability-engine`** tool + an **MCP server** so the open ecosystem can certify content against our sequences-as-data | code | large | low | pr | checker-001, schema-001 | Maintainer |
 | decodable-readers-outcomes-001 | Outcome tracking: usage + partner feedback + defect log | data | small | low | dataset | delivery-001 | Steward |
 | decodable-readers-maint-001 | Sequence/lexicon maintenance cadence + re-validation on sequence edits + correction/withdrawal procedure | maintenance | small | low | document | sequence-001, lexicon-001 | Maintainer |
 | decodable-readers-rotation-001 | Reviewer rotation + load balancing | maintenance | small | low | document | reviewers-001 | Maintainer |
@@ -229,8 +257,9 @@ Goal: scale languages/levels with sustained quality and tracked outcomes.
   **correction/withdrawal** procedure (fix → re-check → or withdraw + notify downstream repos).
 
 **M3 Definition of Done:** ≥ 2 languages with multi-level sets in use; sets published to ≥ 1 open
-repo with correct attribution; outcome tracking live; maintenance cadence + re-validation +
-correction procedure in effect; reviewer rotation operating; named sustainability owner.
+repo with correct attribution; **checker published as a standalone `decodability-engine` tool + MCP
+server**; outcome tracking live; maintenance cadence + re-validation + correction procedure in
+effect; reviewer rotation operating; named sustainability owner.
 
 ---
 
@@ -244,6 +273,9 @@ Sized but unscheduled:
   reviewer coverage grows.
 - **(medium) `read-aloud-audio` alignment hooks** — emit word-timing-ready structured text so
   narration can be aligned later (coordinate with that project; no audio produced here).
+- **(small) "Certify your decodable" badge** — let the open community run their books through
+  `decodable-readers-engine-001` and earn a verifiable "decodable at sequence X, step k" provenance
+  stamp (ecosystem adoption play; builds on the M3 engine task).
 - **(small) Decodable-decodability "explain" mode** — per-word annotation output for teacher review
   (which GPC/step each word relies on).
 - **(small) Teacher one-pager per set** — which step each book targets + the pre-taught tricky words
