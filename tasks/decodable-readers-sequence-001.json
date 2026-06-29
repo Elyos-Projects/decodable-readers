@@ -1,0 +1,33 @@
+{
+  "id": "decodable-readers-sequence-001",
+  "title": "Publish an English scope-and-sequence as data",
+  "project": "decodable-readers",
+  "type": "data",
+  "lane": "donated",
+  "priority": "high",
+  "domain": ["education", "literacy", "phonics", "early-reading"],
+  "riskTier": "low",
+  "urgent": false,
+  "deliverable": "dataset",
+  "tokenEstimate": "small",
+  "status": "open",
+  "context": "decodable-readers publishes phonics-aligned decodable storybooks whose level claims must be machine-checkable. The decodability checker needs the teaching order encoded as data: an ordered list of steps, each declaring the grapheme-phoneme correspondences (GPCs) introduced and the high-frequency 'tricky' words pre-taught at that step. The order must come from an openly-documented scope-and-sequence (no copying of a copyrighted commercial program), with its source and license recorded, so every later book can be verified cumulatively against it.",
+  "objective": "Create sequences/en/<id>.yaml encoding an openly-documented English scope-and-sequence as ordered steps (GPCs introduced + tricky words pre-taught per step), with source/license provenance, so the decodability checker can verify book level claims deterministically.",
+  "acceptanceCriteria": [
+    "sequences/en/<id>.yaml lists ordered steps; each step declares the GPCs introduced and the tricky words pre-taught, interpretable cumulatively",
+    "Records sourceName, sourceUrl, licenseName, licenseUrl, verifiedBy, verifiedDate; the order is from an openly-documented sequence with no copying of a copyrighted commercial program",
+    "File validates against sequenceSchema and passes the CI structural check",
+    "A short README documents the sequence schema, the chosen order, and how books reference a sequenceId + step",
+    "Any ambiguity in source rights is resolved conservatively: if the order's license is unclear, an openly-documented alternative is used and the decision is recorded"
+  ],
+  "resources": [
+    "C:/Users/jason/AppData/Local/Temp/claude/C--code-elyos/5eca0d44-6b8b-4c30-9696-37a524cb249a/scratchpad/plans/decodable-readers/PLAN.md",
+    "C:/code/elyos/packages/schema/src/schemas.ts",
+    "C:/code/elyos/docs/good-deed-definition.md",
+    "Openly-documented English phonics scope-and-sequence reference (license to be recorded)"
+  ],
+  "output": "sequences/en/<id>.yaml plus a README documenting the sequence schema, source/license provenance, and the book-referencing convention (sequenceId + step)",
+  "requestor": "TO BE SECURED",
+  "verifiedNeed": false,
+  "outputLicense": "CC-BY-4.0"
+}
